@@ -1,9 +1,11 @@
 #!/usr/local/bin/python3
 
+import argparse
 import sys
 import random
 import pprint
 import string
+import math
 from functools import reduce
 
 
@@ -63,7 +65,7 @@ professionName =	[
 
 professionRecommendedStat =	{
 "anthropologist1":["strength"],
-"anthropologist1":["strength"],
+"anthropologist2":["strength"],
 "historian1":["strength"],
 "historian2":["strength"],
 "computer scientist":["intelligence"],
@@ -345,14 +347,70 @@ skillsAndBaseRatings =	{
 			"unarmed combat":40,
 			"unnatural":0
 			}
+
+parser = None
+args = None
+
 def stepOne():
+	global characterProfession
+	global characterStatistics
+
+	print("STEP ONE BEGIN")
+	print()
+
+	if args.prof == None:
+		a = random.randint(0,len(professionName)-1)
+	else:
+		a = args.prof - 1
+
+	characterProfession = professionName[a]
+	print("Character is", characterProfession)
+	print()
+
+	print("Character Recommended stats are", professionRecommendedStat[ characterProfession ])
+	print()
+	pprint.pprint( characterStatistics )
+	print()
+	temp = {x[0]: random.randint(10,18) if x[0] in professionRecommendedStat[ characterProfession ] else random.randint(3,18) for x in characterStatistics.items() }
+	print("Character Statistics : ")
+	characterStatistics = temp
+	pprint.pprint( temp )
+	print()
+	print("STEP ONE COMPLETE")
+	print()
 	print()
 
 def stepTwo():
+	global characterAttributes
+
+	print("STEP TWO BEGIN")
+	print()
+	pprint.pprint( characterStatistics )
+	pprint.pprint( characterAttributes )
 	print()
 
-def stepThree():
+	characterAttributes["hitpoints"] = math.ceil( ( characterStatistics["strength"] + characterStatistics["constitution"] ) / 2 )
+	characterAttributes["willpower"] = characterStatistics["power"]
+	characterAttributes["sanity"] = 5 * characterStatistics["power"]
+	characterAttributes["sanity"] = characterAttributes["sanity"] - characterStatistics["power"]
+	
+	pprint.pprint( characterAttributes )
 	print()
+	print()
+	print("STEP TWO COMPLETE")
+	print()
+	print()
+
+
+def stepThree():
+	print("STEP THREE BEGIN")
+	print()
+
+	print()
+	print("STEP THREE COMPLETE")
+	print()
+	print()
+
 
 def stepFour():
 	print()
@@ -361,7 +419,17 @@ def stepFive():
 	print()
 
 def main():
-	print("hello world main")
+
+	global parser
+	global args
+
+	foo = ["{}. {}".format(i+1,professionName[i]) for i in range(len(professionName)) ]
+	bar = "Delta Green Character Generator v1.0\n\n" + '\n'.join(foo)
+
+	parser = argparse.ArgumentParser(add_help=True,formatter_class=argparse.RawTextHelpFormatter,description=bar)
+	parser.add_argument("--prof",type=int,help="Specify profession for generation with an integer",choices=[i+1 for i in range(len(professionName))])
+	args = parser.parse_args()
+
 	stepOne()
 	stepTwo()
 	stepThree()
