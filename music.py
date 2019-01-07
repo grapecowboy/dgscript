@@ -8,6 +8,7 @@ import string
 import math
 from functools import reduce
 
+characterProfession = None
 
 characterStatistics =	{
 "strength":None,
@@ -26,13 +27,16 @@ characterAttributes =	{
 			}
 
 
-characterProfession = None
+characterSkills = None
+characterAddSkills = None
 
 characterBonds = None
 
 characterMotivations = None
 
 characterDeltaGreenExperience = None
+
+characterBeforeProfession = None
 
 professionName =	[
 "anthropologist1",
@@ -93,10 +97,10 @@ professionRecommendedStat =	{
 				}
 
 professionSkills =	{
-"anthropologist1":{"anthropology":50,"bureauacracy":40,"foreign language1":[50,None],"foreign language2":[40,None]},
-"anthropologist2":{"archeology":50,"bureauacracy":40,"foreign language1":[50,None],"foreign language2":[40,None]},
-"historian1":{"anthropology":50,"bureauacracy":40,"foreign language1":[50,None],"foreign language2":[40,None]},
-"historian2":{"archeology":50,"bureauacracy":40,"foreign language1":[None,50],"foreign language2":[None,40]},
+"anthropologist1":{"anthropology":50,"bureaucracy":40,"foreign language":[50,40]},
+"anthropologist2":{"archeology":50,"bureaucracy":40,"foreign language":[50,40]},
+"historian1":{"anthropology":50,"bureaucracy":40,"foreign language":[50,40]},
+"historian2":{"archeology":50,"bureaucracy":40,"foreign language":[50,40]},
 "computer scientist":{"computer science":60,"craft":{"electrician":60,"mechanic":30,"microelectronics":40},"science":{"mathematics":40}},
 "engineer":{"computer science":60,"craft":{"electrician":60,"mechanic":30,"microelectronics":40},"science":{"mathematics":40}},
 "federal agent":{"alertness":50,"bureaucracy":40,"criminology":50,"drive":50,"firearms":50,"forensics":30,"HUMINT":60,"law":30,"persuade":50,"search":50,"unarmed combat":60 },
@@ -105,7 +109,7 @@ professionSkills =	{
 "special operator":{"alertness":60,"athletics":60,"demolitions":40,"heavy weapons":50,"melee weapons":50,"military science":{"land":60},"navigate":50,"stealth":50,"survival":50,"swim":50,"unarmed combat":60},
 "criminal":{"alertness":50,"criminology":60,"dodge":40,"drive":50,"firearm":40,"law":40,"melee weapons":40,"peruade":50,"stealth":50,"unarmed combat":50 },
 "firefighter":{"alertness":50,"athletics":60,"craft":{"electrician":40,"mechanic":40},"demolitions":50,"drive":50,"first aid":50,"forensics":40,"heavy machinery":50,"navigate":50,"search":40 },
-"foreign service operator":{"accounting":40,"anthropology":40,"bureaucracy":60,"foreign language":[50,50,40],"history":40,"HUMINT":50,"law":40,"persuade":50},
+"foreign service officer":{"accounting":40,"anthropology":40,"bureaucracy":60,"foreign language":[50,50,40],"history":40,"HUMINT":50,"law":40,"persuade":50},
 "intelligence analyst":{"anthropology":40,"bureaucracy":50,"computer science":40,"criminology":40,"foreign language":[50,50,40],"history":40,"HUMINT":50,"SIGINT":40 },
 "intelligence case officer":{"alertness":50,"bureaucracy":40,"criminology":50,"disguise":50,"drive":40,"firearms":40,"foreign language":[50,40],"HUMINT":60,"persuade":60,"SIGINT":40,"stealth":50,"unarmed combat":50},
 "lawyer":{"accounting":50,"bureaucracy":50,"HUMINT":40,"persuade":60 },
@@ -113,11 +117,12 @@ professionSkills =	{
 "media specialist":{"art":[60], "history":40, "HUMINT":40,"persuade":50 },
 "nurse":{"alertness":40,"bureaucracy":40,"first aid":60,"HUMINT":40,"medicine":40,"persuade":40,"pharmacy":40,"science":{"biology":40}},
 "paramedic":{"alertness":40,"bureaucracy":40,"first aid":60,"HUMINT":40,"medicine":40,"persuade":40,"pharmacy":40,"science":{"biology":40}},
-"pilot":{"alertness":60,"bureaucracy":30,"craft":{"electrician":40,"mechanic":40},"navigate":50,"pilot":[None,60],"science":{"meteorology":40},"swim":40},
-"sailor":{"alertness":60,"bureaucracy":30,"craft":{"electrician":40,"mechanic":40},"navigate":50,"pilot":[None,60],"science":{"meteorology":40},"swim":40},
+"pilot":{"alertness":60,"bureaucracy":30,"craft":{"electrician":40,"mechanic":40},"navigate":50,"pilot":[60],"science":{"meteorology":40},"swim":40},
+"sailor":{"alertness":60,"bureaucracy":30,"craft":{"electrician":40,"mechanic":40},"navigate":50,"pilot":[60],"science":{"meteorology":40},"swim":40},
 "police officer":{"alertness":60,"bureaucracy":40,"criminology":40,"drive":50,"firearms":40,"first aid":30,"HUMINT":50,"law":30,"melee weapons":50,"navigate":40,"persuade":40,"search":40,"unarmed combat":60},
-"program manager":{"accounting":60,"bureaucracy":60,"computer science":50,"criminology":30,"foreign language":[None,50],"history":40,"law":40,"persuade":50},
-"soldier":{"alertness":50,"athletics":50,"bureaucracy":30,"drive":40,"firearms":40,"first aid":40,"military science":{"land":40},"navigate":40,"persuade":30,"unarmed combat":50}
+"program manager":{"accounting":60,"bureaucracy":60,"computer science":50,"criminology":30,"foreign language":[50],"history":40,"law":40,"persuade":50},
+"soldier":{"alertness":50,"athletics":50,"bureaucracy":30,"drive":40,"firearms":40,"first aid":40,"military science":{"land":40},"navigate":40,"persuade":30,"unarmed combat":50},
+"marine":{"alertness":50,"athletics":50,"bureaucracy":30,"drive":40,"firearms":40,"first aid":40,"military science":{"land":40},"navigate":40,"persuade":30,"unarmed combat":50}
 			}
 
 professionAddSkills =	{
@@ -125,28 +130,27 @@ professionAddSkills =	{
 			"anthropologist2":{"anthropology":40,"HUMINT":50,"navigate":50,"ride":50,"search":60,"survival":50},
 			"historian1":{"archeology":40,"HUMINT":50,"navigate":50,"ride":50,"search":60,"survival":50},
 			"historian2":{"anthropology":40,"HUMINT":50,"navigate":50,"ride":50,"search":60,"survival":50},
-			"computer scientist":{"accounting":50,"bureaucracy":50,"craft":40,"foreign language1":40,"heavy machinery":50,"law":40,"science":40},
-			"engineer":{"accounting":50,"bureaucracy":50,"craft":40,"foreign language1":40,"heavy machinery":50,"law":40,"science":40},
-			"federal agent":{"accounting":60,"computer science":50,"foreign language1":50,"heavy weapons":50,"pharmacy":50},
+			"computer scientist":{"accounting":50,"bureaucracy":50,"craft":[40],"foreign language":[40],"heavy machinery":50,"law":40,"science":40},
+			"engineer":{"accounting":50,"bureaucracy":50,"craft":40,"foreign language":[40],"heavy machinery":50,"law":40,"science":40},
+			"federal agent":{"accounting":60,"computer science":50,"foreign language":[50],"heavy weapons":50,"pharmacy":50},
 			"physician":{"forensics":50,"psychotherapy":60,"science":50,"surgery":50},
-			"scientist":{"accounting":50,"craft":40,"foreign language1":40,"law":40,"pharmacy":40 },
-			"criminal":{"craft":{"locksmithing":40},"demolitions":40,"disguise":50,"foreign language1":40,"forensics":40,"HUMINT":50,"navigate":50,"occult":50,"pharmacy":40},
+			"scientist":{"accounting":50,"craft":[40],"foreign language":[40],"law":40,"pharmacy":40 },
+			"special operator":{"alertness":60,"athletics":60,"demolitions":40,"firearms":60,"heavy weapons":50,"melee weapons":50,"military science":{"land":60},"navigate":50,"stealth":50,"survival":40,"swim":50,"unarmed combat":60},
+			"criminal":{"craft":{"locksmithing":40},"demolitions":40,"disguise":50,"foreign language":[40],"forensics":40,"HUMINT":50,"navigate":50,"occult":50,"pharmacy":40},
 			"lawyer":{"computer science":50,"criminology":60,"foreign language":[50],"law":50,"pharmacy":50 },
 			"business executive":{"computer science":50,"criminology":60,"foreign language":[50],"law":50,"pharmacy":50 },
-			"media specialist":{"anthropology":40,"archeology":40,"art":[40],"bureaucracy":50,"computer science":40,"crimnology":50,"foreign language":40,"law":40,"military science":[40],"occult":50,"science":[40] },
+			"media specialist":{"anthropology":40,"archeology":40,"art":[40],"bureaucracy":50,"computer science":40,"crimnology":50,"foreign language":[40],"law":40,"military science":[40],"occult":50,"science":[40] },
 			"nurse":{"drive":60,"forensics":40,"navigate":50,"psychotherapy":50,"search":60},
 			"paramedic":{"drive":60,"forensics":40,"navigate":50,"psychotherapy":50,"search":60},
-			"pilot":{"foreign language":[50],"pilot":[None,50],"heavy weapons":50,"miltary science":[None,50]},
-			"sailor":{"foreign language":[50],"pilot":[None,50],"heavy weapons":50,"miltary science":[None,50]},
+			"pilot":{"foreign language":[50],"pilot":[50],"heavy weapons":50,"military science":[50]},
+			"sailor":{"foreign language":[50],"pilot":[50],"heavy weapons":50,"military science":[50]},
 			"police officer":{"forensics":50,"heavy machinery":60,"heavy weapons":50,"ride":60},
-			"program manager":{"anthropology":30,"art":[None,30],"craft":[None,30],"science":[None,30]},
-			"soldier":{"artillery":40,"computer science":40,"craft":[None,40],"demolitions":40,"foreign language":[40],"heavy machinery":50,"heavy weapons":40,"search":60,"SIGINT":40,"swim":60}
+			"program manager":{"anthropology":30,"art":[30],"craft":[30],"science":[30]},
+			"soldier":{"artillery":40,"computer science":40,"craft":[40],"demolitions":40,"foreign language":[40],"heavy machinery":50,"heavy weapons":40,"search":60,"SIGINT":40,"swim":60},
+			"marine":{"artillery":40,"computer science":40,"craft":[40],"demolitions":40,"foreign language":[40],"heavy machinery":50,"heavy weapons":40,"search":60,"SIGINT":40,"swim":60}
+
 			}
 
-professionCraft =	{
-"computer scientist":["electrician","mechanic","microelectronics"],
-"engineer":["electrician","mechanic","microelectronics"]
-			}
 
 professionScience =	[
 			"physics",
@@ -159,7 +163,10 @@ professionScience =	[
 			"metereology",
 			"geology",
 			"astronomy",
-			"oceanogrophy"
+			"oceanogrophy",
+			"anatomy",
+			"physiology",
+			"virology"
 			]
 
 professionArt =	[
@@ -171,7 +178,12 @@ professionArt =	[
 		"impressionism",
 		"music",
 		"jazz",
-		"art history"
+		"art history",
+		"sculpture",
+		"printing",
+		"oragami"
+		"writing",
+		"poetry"
 		]
 
 professionPilot =	[
@@ -190,6 +202,21 @@ professionMilitaryScience =	[
 				"cryptography",
 				"sabotage"
 				]
+
+professionCraft =	[
+			"carpenter",
+			"electrician",
+			"mechanic",
+			"gunsmith",
+			"locksmith",
+			"iOS",
+			"Android",
+			"penetration testing",
+			"OSX",
+			"Windows",
+			"chef",
+			"close up magic"			
+			]
 
 professionBonds =	{
 "anthropologist1":4,
@@ -231,7 +258,11 @@ foreignLanguage =	[
 "ancient greek",
 "latin",
 "german",
-"russian"
+"russian",
+"swedish",
+"cantonese",
+"mandarin",
+"dutch"
 			]
 
 bonds =			[
@@ -277,10 +308,10 @@ beforeProfession =	{
 			"counselor":["bureaucracy","first aid","foreign language","HUMINT","law","persuade","psychotherapy","search"],
 			"crimnalist":["accounting","bureaucracy","computer science","criminology","forensics","law","pharmacy","search"],
 			"firefighter":["alertness","demolitions","drive","first aid","forensics","heavy machinery","navigate","search"],
-			"gangster":["alertness","criminology","dodge","drive","persuade","stealth",["athletics","foreign language","firewarms","HUMINT","melee weapons","pharmacy","unarmed combat"] ],
-			"deep cover":["alertness","criminology","dodge","drive","persuade","stealth",["athletics","foreign language","firewarms","HUMINT","melee weapons","pharmacy","unarmed combat"] ],
+			"gangster":["alertness","criminology","dodge","drive","persuade","stealth",["athletics","foreign language","firearms","HUMINT","melee weapons","pharmacy","unarmed combat"] ],
+			"deep cover":["alertness","criminology","dodge","drive","persuade","stealth",["athletics","foreign language","firearms","HUMINT","melee weapons","pharmacy","unarmed combat"] ],
 			"interrogator":["criminology","foreign language","foreign language","HUMINT","law","persuade","pharmacy","search"],
-			"liberal arts degree":[ ["anthropology","archeology"],"art","foreign language","history","persuade"],
+			"liberal arts degree":[ ["anthropology","archeology"],"art","foreign language","history","persuade","random","random","random"],
 			"military officer":["bureaucracy","firearms","history","military science","navigate","persuade","unarmed combat",["artillery","heavy machinery","heavy weapons","HUMINT","pilot","SIGINT"] ],
 			"mba":["accounting","bureaucracy","HUMINT","law","persuade","random","random","random"],
 			"nurse":["alertness","first aid","medicine","persuade","pharmacy","psychotherapy","science","search"],
@@ -290,15 +321,15 @@ beforeProfession =	{
 			"consipracy theorist":["anthropology","archeology","computer science","criminology","history","occult","persuade","search"],
 			"outdoorsman":["alertness","athletics","firearms","navigate","ride","search","stealth","survival"],
 			"photographer":["alertness","art","computer science","persuade","search","stealth","random","random"],
-			"pilot":["alterness","craft","first aid","foreign language","navigate","pilot","survival","swim"],
-			"sailor":["alterness","craft","first aid","foreign language","navigate","pilot","survival","swim"],
-			"police officer":["alertness","criminology","drive","firewarms","HUMINT","law","melee weapons","unarmed combat"],
-			"science grad student":["bureaucracy","computer science","craft","foreign language","science","science","sciece",["accounting","forensics","law","pharmacy"]],
+			"pilot":["alertness","craft","first aid","foreign language","navigate","pilot","survival","swim"],
+			"sailor":["alertness","craft","first aid","foreign language","navigate","pilot","survival","swim"],
+			"police officer":["alertness","criminology","drive","firearms","HUMINT","law","melee weapons","unarmed combat"],
+			"science grad student":["bureaucracy","computer science","craft","foreign language","science","science","science",["accounting","forensics","law","pharmacy"]],
 			"social worker":["bureaucracy","criminology","forensics","foreign language","HUMINT","law","persuade","search"],
 			"criminal justice degree":["bureaucracy","criminology","forensics","foreign language","HUMINT","law","persuade","search"],
 			"soldier":["alertness","artillery","athletics","drive","firearms","heavy weapons","military science","unarmed combat"],
 			"marine":["alertness","artillery","athletics","drive","firearms","heavy weapons","military science","unarmed combat"],
-			"translator":["anthropology","foreign language","foriegn language","foreign language","history","HUMINT","persuade","random"],
+			"translator":["anthropology","foreign language","foreign language","foreign language","history","HUMINT","persuade","random"],
 			"urban explorer":["alertness","athletics","craft","law","navigate","persuade","search","stealth"]
 			}
 
@@ -318,7 +349,7 @@ skillsAndBaseRatings =	{
 			"disguise":10,
 			"dodge":30,
 			"drive":20,
-			"firewarms":20,
+			"firearms":20,
 			"first aid":10,
 			"foreign language":0,
 			"forensics":0,
@@ -359,7 +390,9 @@ def stepOne():
 	print()
 
 	if args.prof == None:
+		print("Random character mode")
 		a = random.randint(0,len(professionName)-1)
+		print("a is ", a)
 	else:
 		a = args.prof - 1
 
@@ -393,8 +426,9 @@ def stepTwo():
 	characterAttributes["willpower"] = characterStatistics["power"]
 	characterAttributes["sanity"] = 5 * characterStatistics["power"]
 	characterAttributes["sanity"] = characterAttributes["sanity"] - characterStatistics["power"]
-	
+	characterAttributes["breaking"] = characterAttributes["sanity"] - characterAttributes["willpower"]
 	pprint.pprint( characterAttributes )
+
 	print()
 	print()
 	print("STEP TWO COMPLETE")
@@ -403,22 +437,486 @@ def stepTwo():
 
 
 def stepThree():
+	global characterSkills
+	global characterAddSkills
+	global characterBeforeProfession
+	global beforeProfession
+
+	a = args.prof
+
 	print("STEP THREE BEGIN")
-	print()
+	print("a is ",a)
+
+	if a==None:
+		a = professionName.index( characterProfession ) + 1
 
 	print()
+
+	pprint.pprint( characterProfession )
+	#pprint.pprint( professionSkills )
+	characterSkills = professionSkills[ characterProfession ]
+
+	if a==12 or a==13 or a==14 or a==15:
+		print()
+	else:
+		characterAddSkills = professionAddSkills[ characterProfession ]
+
+	pprint.pprint( characterSkills )
+	print()
+
+	if a==12 or a==13 or a==14 or a==15:
+		print()
+	else:
+		pprint.pprint( characterAddSkills )
+
+	print()
+
+	if a==1 or a==2 or a==3 or a==4:
+		i = random.sample( foreignLanguage, 2 )
+		j = professionSkills[ characterProfession ]["foreign language"]
+		characterSkills["foreign language"] = dict( zip(i,j) )
+		pprint.pprint( characterSkills )
+		print()
+		pprint.pprint( characterAddSkills )
+		print()
+
+	elif a==5 or a==6:
+		i = random.sample( foreignLanguage, 1 )
+		j = professionAddSkills[ characterProfession]["foreign language"]
+		characterAddSkills["foreign language"] = dict( zip(i,j) )
+
+		i = random.sample( professionCraft, 1 )
+		j = characterAddSkills["craft"]
+		k = dict( zip(i,j) )
+		characterAddSkills["craft"] = k
+
+		pprint.pprint( characterSkills )
+		print()
+		pprint.pprint( characterAddSkills )
+		print()
+	elif a==7:
+		i = random.sample( foreignLanguage, 1 )
+		j = professionAddSkills[ characterProfession]["foreign language"]
+		characterAddSkills["foreign language"] = dict( zip(i,j) )
+
+		i = random.sample( professionCraft, 1 )
+		j = characterAddSkills["craft"]
+		k = dict( zip(i,j) )
+		characterAddSkills["craft"] = k
+
+		pprint.pprint( characterSkills )
+		print()
+		pprint.pprint( characterAddSkills )
+		print()
+
+	elif a==8 :
+		print()
+	elif a==9 :
+		i = random.sample( professionScience, 3 )
+		j = characterSkills["science"]
+		k = dict( zip(i,j) )
+		characterSkills["science"] = k
+		pprint.pprint( characterSkills )
+		print()
+
+		i = random.sample( professionCraft, 1 )
+		j = characterAddSkills["craft"]
+		k = dict( zip(i,j) )
+		characterAddSkills["craft"] = k
+		pprint.pprint( characterAddSkills )
+		print()
+
+		i = random.sample( foreignLanguage, 1 )
+		j = characterAddSkills["foreign language"]
+		k = dict( zip(i,j) )
+		characterAddSkills["foreign language"] = k
+		pprint.pprint( characterAddSkills )
+		print()
+	elif a==10 :
+		print()
+	elif a==11 or a==16 or a==17:
+		i = random.sample( foreignLanguage, 1 )
+		j = characterAddSkills["foreign language"]
+		k = dict( zip(i,j) )
+		characterAddSkills["foreign language"] = k
+		pprint.pprint( characterAddSkills )
+		print()
+	elif a==12 :
+		print()
+	elif a==13 or a==14:
+		i = random.sample( foreignLanguage, 3 )
+		j = characterSkills["foreign language"]
+		k = dict( zip(i,j) )
+		characterSkills["foreign language"] = k
+		pprint.pprint( characterSkills )
+		print()
+	elif a==15 :
+		i = random.sample( foreignLanguage, 2 )
+		j = characterSkills["foreign language"]
+		k = dict( zip(i,j) )
+		characterSkills["foreign language"] = k
+		pprint.pprint( characterSkills )
+		print()
+	elif a==18 :
+		i = random.sample( professionArt, 1 )
+		j = characterSkills["art"]
+		k = dict( zip(i,j) )
+		characterSkills["art"] = k
+
+		i = random.sample( professionArt, 1)
+		j = characterAddSkills["art"]
+		k = dict( zip(i,j) )
+		characterAddSkills["art"] = k
+
+		i = random.sample( foreignLanguage, 1 )
+		j = characterAddSkills["foreign language"]
+		k = dict( zip(i,j) )
+		characterAddSkills["foreign language"] = k
+
+		i = random.sample( professionMilitaryScience, 1 )
+		j = characterAddSkills["military science"]
+		k = dict( zip(i,j) )
+		characterAddSkills["military science"] = k
+
+		i = random.sample( professionScience, 1 )
+		j = characterAddSkills["science"]
+		k = dict( zip(i,j) )
+		characterAddSkills["science"] = k
+
+		pprint.pprint( characterSkills )
+		print()
+		pprint.pprint( characterAddSkills )
+		print()
+	elif a==19 :
+		print()
+	elif a==20 :
+		print()
+	elif a==21 or a==22:
+		i = random.sample( professionPilot, 1 )
+		j = characterSkills["pilot"]
+		k = dict( zip(i,j) )
+		characterSkills["pilot"] = k
+
+		i = random.sample( foreignLanguage, 1 )
+		j = characterAddSkills["foreign language"]
+		k = dict( zip(i,j) )
+		characterAddSkills["foreign language"] = k
+
+		i = random.sample( professionPilot, 1 )
+		j = characterAddSkills["pilot"]
+		k = dict( zip(i,j) )
+		characterAddSkills["pilot"] = k
+
+		i = random.sample( professionMilitaryScience, 1 )
+		j = characterAddSkills["military science"]
+		k = dict( zip(i,j) )
+		characterAddSkills["military science"] = k
+
+		pprint.pprint( characterSkills )
+		pprint.pprint( characterAddSkills )
+		print()
+	elif a==23 :
+		print()
+	elif a==24 :
+		i = random.sample( foreignLanguage, 1 )
+		j = characterSkills["foreign language"]
+		k = dict( zip(i,j) )
+		characterSkills["foreign language"] = k
+
+		i = random.sample( professionArt, 1 )
+		j = characterAddSkills["art"]
+		k = dict( zip(i,j) )
+		characterAddSkills["art"] = k
+
+		i = random.sample( professionCraft, 1 )
+		j = characterAddSkills["craft"]
+		k = dict( zip(i,j) )
+		characterAddSkills["craft"] = k
+
+		i = random.sample( professionScience, 1 )
+		j = characterAddSkills["science"]
+		k = dict( zip(i,j) )
+		characterAddSkills["science"] = k
+
+		pprint.pprint( characterSkills )
+		pprint.pprint( characterAddSkills ) 
+		print()
+	elif a==25 or a==26:
+		i = random.sample( professionCraft, 1 )
+		j = characterAddSkills["craft"]
+		k = dict( zip(i,j) )
+		characterAddSkills["craft"] = k
+
+		i = random.sample( foreignLanguage, 1)
+		j = characterAddSkills["foreign language"]
+		k = dict( zip(i,j) )
+		characterAddSkills["foreign language"] = k
+
+		pprint.pprint( characterSkills )
+		pprint.pprint( characterAddSkills )
+		print()
+
+
+	if a==1 or a==2 or a==3 or a==4:
+		i = dict( random.sample( characterAddSkills.items(), 2) )
+		characterAddSkills = i
+		pprint.pprint( characterAddSkills )
+		print()
+	elif a==5 or a==6:
+		i = dict( random.sample( characterAddSkills.items(), 4 ) )
+		characterAddSkills = i
+		pprint.pprint( characterAddSkills )
+		print()
+	elif a==7:
+		i = dict( random.sample( characterAddSkills.items(), 1) )
+		characterAddSkills = i
+		pprint.pprint( characterAddSkills )
+		print()
+	elif a==8:
+		i = dict( random.sample( characterAddSkills.items(), 2 ) )
+		characterAddSkills = i
+		pprint.pprint( characterAddSkills )
+		print()
+	elif a==9:
+		i = dict( random.sample( characterAddSkills.items(), 3 ) )
+		characterAddSkills = i
+		pprint.pprint( characterAddSkills )
+		print()
+	elif a==10:
+		print()
+	elif a==11:
+		i = dict( random.sample( characterAddSkills.items(), 2) )
+		characterAddSkills = i
+		pprint.pprint( characterAddSkills )
+		print()
+	elif a==12:
+		print()
+	elif a==13:
+		print()
+	elif a==14:
+		print()
+	elif a==15:
+		print()
+	elif a==16 or a==17:
+		i = dict( random.sample( characterAddSkills.items(),4 ) )
+		characterAddSkills = i
+		pprint.pprint( characterAddSkills )
+		print()
+	elif a==18:
+		i = dict( random.sample( characterAddSkills.items(),5 ) )
+		characterAddSkills = i
+		pprint.pprint( characterAddSkills )
+		print()
+	elif a==19 or a==20 or a==21 or a==22:
+		i = dict( random.sample( characterAddSkills.items(),2 ) )
+		characterAddSkills = i
+		pprint.pprint( characterAddSkills )
+		print()
+	elif a==23 or a==24:
+		i = dict( random.sample( characterAddSkills.items(),1 ) )
+		characterAddSkills = i
+		pprint.pprint( characterAddSkills )
+		print()
+	elif a==25 or a==26:
+		i = dict( random.sample( characterAddSkills.items(),3 ) )
+		characterAddSkills = i
+		pprint.pprint( characterAddSkills )
+		print()
+
+	
+	characterBeforeProfession = random.choice( list(beforeProfession) )
+	print("CHARACTER PREVIOUS PROFESSION ", characterBeforeProfession )
+	print()
+
+	if characterBeforeProfession=="gangster" or characterBeforeProfession=="deep cover":
+		w = beforeProfession[ characterBeforeProfession ][6]
+		x = random.sample( w,2 )
+		y = beforeProfession[ characterBeforeProfession][0:6]
+		beforeProfession[ characterBeforeProfession ] = y + x
+	elif characterBeforeProfession=="military officer":
+		w = beforeProfession[ characterBeforeProfession ][7]
+		x = random.sample(w,1)
+		y = beforeProfession[ characterBeforeProfession][0:7]
+		beforeProfession[ characterBeforeProfession ] = y + x
+	elif characterBeforeProfession=="liberal arts degree":
+		w = beforeProfession[ characterBeforeProfession ][0]
+		x = random.sample(w,1)
+		y = beforeProfession[ characterBeforeProfession ][1:8]
+		beforeProfession[ characterBeforeProfession] = x + y
+
+	i = skillsAndBaseRatings
+	# merge primary skills
+	j = {m[0]: m[1] if not(m[0] in characterSkills) else characterSkills[ m[0] ]  for m in i.items()} 
+
+	# merge add skills if present
+	if characterAddSkills != None:
+		k = {m[0]: m[1] if not(m[0] in characterAddSkills) else characterAddSkills[ m[0] ]  for m in j.items()}
+
+	# merge previous profession skills randomly
+	print("SKILLS BEFORE ADDING PREVIOUS PROFESSION EXPERIENCE ")
+	pprint.pprint( characterSkills )
+	print()
+	if characterAddSkills!=None:
+		print("CHARACTER ADDITIONAL SKILLS")
+		pprint.pprint( characterAddSkills )
+		print()
+	else:
+		print()
+
+	print("FIRST MERGE WITH PROFESSION SKILLS")
+	pprint.pprint(j)
+	print()
+	if characterAddSkills!=None:
+		print("MERGE WITH ADDITIONAL PROFESSION SKILLS")
+		pprint.pprint(k)
+	print()
+
+
+	print("CHARACTER PREVIOUS PROFESSION ", characterBeforeProfession)
+	print()
+	print("CHARACTER BEFORE PROFESSION SKILLS")
+	pprint.pprint( beforeProfession[ characterBeforeProfession ] )
+	print()
+	print("CHARACTER SKILLS MERGE WITH BEFORE PROFESSION SKILLS")
+	print()
+	pprint.pprint( k )
+	for i in beforeProfession[ characterBeforeProfession ]:
+		print("i in hash of beforeProfession is ", i)
+		if i in ["art","craft","science","military science","foreign language","pilot"]:
+			print()
+		elif i=="random":
+			j = random.sample( skillsAndBaseRatings.keys(), 1 )
+			print("Random mode j is ", j[0])
+			if j[0] in ["art","craft","science","military science","foreign language","pilot"]:
+				#get hash of skill
+				h = k[j[0]]
+				#pick random item of hash
+				print("h is ", h)
+				m = random.choice(list(h))
+				#add 20 to the random item of hash
+				h[m]+=20
+				k[j[0]] = h
+			else:
+				print("random skill chosen is ", j[0])
+				k[j[0]]+=20
+			print()
+		else:
+			k[i]+=20
+			print()
+
+	print("CHARACTER SKILLS MERGE WITH BEFORE PROFESSION SKILLS COMPLETE")
+	characterSkills = k
+	pprint.pprint( characterSkills )
+	print()	
 	print("STEP THREE COMPLETE")
 	print()
 	print()
 
 
 def stepFour():
+	global characterBonds
+
+	print("STEP FOUR BEGIN")
+	i = random.sample( bonds, professionBonds[ characterProfession ] )
+	characterBonds = {j:characterStatistics["charisma"]  for j in i}
+	pprint.pprint( characterBonds )
+	print("STEP FOUR COMPLETE")
 	print()
 
 def stepFive():
+	print("STEP FIVE BEGIN")
+	print("STEP FIVE COMPLETE")
 	print()
 
+def initializeGlobals():
+	global parser
+	global args
+	global characterSkills
+	global characterAddSkills
+	global characterBonds
+	global characterMotivations
+	global characterDeltaGreenExperience
+	global otherMotivations
+	global characterBeforeProfession
+	global characterProfession
+	global characterStatistics
+	global characterAttributes
+	global beforeProfession
+
+	parser = None
+	args = None
+	characterSkills = None
+	characterAddSkills = None
+	characterBonds = None
+	characterMotivations = None
+	characterDeltaGreenExperience = None
+	otherMotivations = None
+	characterBeforeProfession = None
+	characterProfession = None
+
+
+	characterStatistics =	{
+				"strength":None,
+				"dexterity":None,
+				"constitution":None,
+				"intelligence":None,
+				"power":None,
+				"charisma":None
+				}
+
+	characterAttributes =	{
+				"hitpoints":None,
+				"willpower":None,
+				"sanity":None,
+				"breaking":None
+				}
+
+	beforeProfession =	{
+			"artist":["alertness","craft","disguise","persuade","art","art","art","HUMINT"],
+			"actor":["alertness","craft","disguise","persuade","art","art","art","HUMINT"],
+			"musician":["alertness","craft","disguise","persuade","art","art","art","HUMINT"],
+			"athlete":["alertness","athletics","dodge","first aid","HUMINT","persuade","swim","unarmed combat"],
+			"author":["anthropology","art","bureaucracy","history","law","occult","persuade","HUMINT"],
+			"editor":["anthropology","art","bureaucracy","history","law","occult","persuade","HUMINT"],
+			"journalist":["anthropology","art","bureaucracy","history","law","occult","persuade","HUMINT"],
+			"black bag training":["alertness","athletics","craft","craft","criminology","disguise","search","stealth"],
+			"blue collar worker":["alertness","craft","craft","drive","first aid","heavy machinery","navigate","search"],
+			"bureaucrat":["accounting","bureaucracy","computer science","criminology","HUMINT","law","persuade","random"],
+			"clergy":["foreign language","foreign language","foreign language","history","HUMINT","occult","persuade","psychotherapy"],
+			"combat veteran":["alertness","dodge","firearms","first aid","heavy weapons","melee weapons","stealth","unarmed combat"],
+			"computer enthusiast":["computer science","craft","science","SIGINT","random","random","random","random"],
+			"hacker":["computer science","craft","science","SIGINT","random","random","random","random"],
+			"counselor":["bureaucracy","first aid","foreign language","HUMINT","law","persuade","psychotherapy","search"],
+			"crimnalist":["accounting","bureaucracy","computer science","criminology","forensics","law","pharmacy","search"],
+			"firefighter":["alertness","demolitions","drive","first aid","forensics","heavy machinery","navigate","search"],
+			"gangster":["alertness","criminology","dodge","drive","persuade","stealth",["athletics","foreign language","firearms","HUMINT","melee weapons","pharmacy","unarmed combat"] ],
+			"deep cover":["alertness","criminology","dodge","drive","persuade","stealth",["athletics","foreign language","firearms","HUMINT","melee weapons","pharmacy","unarmed combat"] ],
+			"interrogator":["criminology","foreign language","foreign language","HUMINT","law","persuade","pharmacy","search"],
+			"liberal arts degree":[ ["anthropology","archeology"],"art","foreign language","history","persuade"],
+			"military officer":["bureaucracy","firearms","history","military science","navigate","persuade","unarmed combat",["artillery","heavy machinery","heavy weapons","HUMINT","pilot","SIGINT"] ],
+			"mba":["accounting","bureaucracy","HUMINT","law","persuade","random","random","random"],
+			"nurse":["alertness","first aid","medicine","persuade","pharmacy","psychotherapy","science","search"],
+			"paramedic":["alertness","first aid","medicine","persuade","pharmacy","psychotherapy","science","search"],
+			"pre-med":["alertness","first aid","medicine","persuade","pharmacy","psychotherapy","science","search"],
+			"occult investigator":["anthropology","archeology","computer science","criminology","history","occult","persuade","search"],
+			"consipracy theorist":["anthropology","archeology","computer science","criminology","history","occult","persuade","search"],
+			"outdoorsman":["alertness","athletics","firearms","navigate","ride","search","stealth","survival"],
+			"photographer":["alertness","art","computer science","persuade","search","stealth","random","random"],
+			"pilot":["alertness","craft","first aid","foreign language","navigate","pilot","survival","swim"],
+			"sailor":["alertness","craft","first aid","foreign language","navigate","pilot","survival","swim"],
+			"police officer":["alertness","criminology","drive","firearms","HUMINT","law","melee weapons","unarmed combat"],
+			"science grad student":["bureaucracy","computer science","craft","foreign language","science","science","sciece",["accounting","forensics","law","pharmacy"]],
+			"social worker":["bureaucracy","criminology","forensics","foreign language","HUMINT","law","persuade","search"],
+			"criminal justice degree":["bureaucracy","criminology","forensics","foreign language","HUMINT","law","persuade","search"],
+			"soldier":["alertness","artillery","athletics","drive","firearms","heavy weapons","military science","unarmed combat"],
+			"marine":["alertness","artillery","athletics","drive","firearms","heavy weapons","military science","unarmed combat"],
+			"translator":["anthropology","foreign language","foreign language","foreign language","history","HUMINT","persuade","random"],
+			"urban explorer":["alertness","athletics","craft","law","navigate","persuade","search","stealth"]
+			}
+
 def main():
+
+	initializeGlobals()
 
 	global parser
 	global args
