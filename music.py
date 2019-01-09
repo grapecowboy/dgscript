@@ -338,12 +338,12 @@ skillsAndBaseRatings =	{
 			"alertness":20,
 			"anthropology":0,
 			"archeology":0,
-			"art":0,
+			"art":None,
 			"artillery":0,
 			"athletics":30,
 			"bureaucracy":10,
 			"computer science":0,
-			"craft":0,
+			"craft":None,
 			"criminology":10,
 			"demolitions":0,
 			"disguise":10,
@@ -351,7 +351,7 @@ skillsAndBaseRatings =	{
 			"drive":20,
 			"firearms":20,
 			"first aid":10,
-			"foreign language":0,
+			"foreign language":None,
 			"forensics":0,
 			"heavy machinery":10,
 			"heavy weapons":0,
@@ -360,15 +360,15 @@ skillsAndBaseRatings =	{
 			"law":0,
 			"medicine":0,
 			"melee weapons":30,
-			"military science":0,
+			"military science":None,
 			"navigate":10,
 			"occult":10,
 			"persuade":20,
 			"pharmacy":0,
-			"pilot":0,
+			"pilot":None,
 			"psychotherapy":10,
 			"ride":10,
-			"science":0,
+			"science":None,
 			"search":20,
 			"SIGINT":0,
 			"stealth":10,
@@ -449,7 +449,7 @@ def stepThree():
 
 	if a==None:
 		a = professionName.index( characterProfession ) + 1
-
+		print("a was none now is ",a)
 	print()
 
 	pprint.pprint( characterProfession )
@@ -485,8 +485,12 @@ def stepThree():
 		j = professionAddSkills[ characterProfession]["foreign language"]
 		characterAddSkills["foreign language"] = dict( zip(i,j) )
 
+		print("CHARACTER ADD SKILLS")
+		pprint.pprint( characterAddSkills )
 		i = random.sample( professionCraft, 1 )
-		j = characterAddSkills["craft"]
+		j = [characterAddSkills["craft"]]
+		pprint.pprint( i )
+		pprint.pprint( j )
 		k = dict( zip(i,j) )
 		characterAddSkills["craft"] = k
 
@@ -498,11 +502,6 @@ def stepThree():
 		i = random.sample( foreignLanguage, 1 )
 		j = professionAddSkills[ characterProfession]["foreign language"]
 		characterAddSkills["foreign language"] = dict( zip(i,j) )
-
-		i = random.sample( professionCraft, 1 )
-		j = characterAddSkills["craft"]
-		k = dict( zip(i,j) )
-		characterAddSkills["craft"] = k
 
 		pprint.pprint( characterSkills )
 		print()
@@ -743,6 +742,11 @@ def stepThree():
 		x = random.sample(w,1)
 		y = beforeProfession[ characterBeforeProfession ][1:8]
 		beforeProfession[ characterBeforeProfession] = x + y
+	elif characterBeforeProfession=="science grad student":
+		w = beforeProfession[ characterBeforeProfession ][7]
+		x = random.sample(w,1)
+		y = beforeProfesion[ characterBeforeProfession][0:7]
+		beforeProfession[ characterBeforeProfession] = y + x
 
 	i = skillsAndBaseRatings
 	# merge primary skills
@@ -751,6 +755,8 @@ def stepThree():
 	# merge add skills if present
 	if characterAddSkills != None:
 		k = {m[0]: m[1] if not(m[0] in characterAddSkills) else characterAddSkills[ m[0] ]  for m in j.items()}
+	else:
+		k = j
 
 	# merge previous profession skills randomly
 	print("SKILLS BEFORE ADDING PREVIOUS PROFESSION EXPERIENCE ")
@@ -780,29 +786,61 @@ def stepThree():
 	print("CHARACTER SKILLS MERGE WITH BEFORE PROFESSION SKILLS")
 	print()
 	pprint.pprint( k )
-	for i in beforeProfession[ characterBeforeProfession ]:
-		print("i in hash of beforeProfession is ", i)
-		if i in ["art","craft","science","military science","foreign language","pilot"]:
-			print()
-		elif i=="random":
-			j = random.sample( skillsAndBaseRatings.keys(), 1 )
-			print("Random mode j is ", j[0])
-			if j[0] in ["art","craft","science","military science","foreign language","pilot"]:
-				#get hash of skill
-				h = k[j[0]]
-				#pick random item of hash
-				print("h is ", h)
-				m = random.choice(list(h))
-				#add 20 to the random item of hash
-				h[m]+=20
-				k[j[0]] = h
-			else:
-				print("random skill chosen is ", j[0])
-				k[j[0]]+=20
-			print()
-		else:
+	print()
+
+	print("MERGING BEFORE-PROFESSION WITH CURRENT PROFESSION")
+	for i in beforeProfession[ characterBeforeProfession]:
+		if i=="random":
+			i = random.sample( skillsAndBaseRatings.keys(), 1 )[0]
+
+		if not( i in ["art","craft","military science","foreign language","science","pilot"]):
+			print("i is ",i)
+			pprint.pprint(k)
 			k[i]+=20
-			print()
+		elif i=="art" and k[i]==None:
+			k[i] = {random.sample(professionArt,1)[0]:20}
+		elif i=="art" and k[i]!=None:
+			temp1 = k[i]
+			temp2 = random.sample( k[i].keys(),1)[0]
+			temp1[ temp2 ] += 20
+			k[i] = temp1
+		elif i=="craft" and k[i]==None:
+			k[i] = {random.sample(professionCraft,1)[0]:20}
+		elif i=="craft" and k[i]!=None:
+			temp1 = k[i]
+			temp2 = random.sample( k[i].keys(),1)[0]
+			temp1[ temp2 ] += 20
+			k[i] = temp1
+		elif i=="military science" and k[i]==None:
+			k[i] = {random.sample(professionMilitaryScience,1)[0]:20}
+		elif i=="military science" and k[i]!=None:
+			temp1 = k[i]
+			temp2 = random.sample( k[i].keys(),1)[0]
+			temp1[ temp2 ] += 20
+			k[i] = temp1
+		elif i=="foreign language" and k[i]==None:
+			k[i] = {random.sample(foreignLanguage,1)[0]:20}
+		elif i=="foreign language" and k[i]!=None:
+			temp1 = k[i]
+			print("foreign languages")
+			pprint.pprint( temp1 )
+			temp2 = random.sample( k[i].keys(),1)[0]
+			temp1[ temp2 ] += 20
+			k[i] = temp1
+		elif i=="science" and k[i]==None:
+			k[i] = {random.sample(professionScience,1)[0]:20}
+		elif i=="science" and k[i]!=None:
+			temp1 = k[i]
+			temp2 = random.sample( k[i].keys(),1)[0]
+			temp1[ temp2 ] += 20
+			k[i] = temp1
+		elif i=="pilot" and k[i]==None:
+			k[i] = {random.sample(professionPilot,1)[0]:20}
+		elif i=="pilot" and k[i]!=None:
+			temp1 = k[i]
+			temp2 = random.sample( k[i].keys(),1)[0]
+			temp1[ temp2 ] += 20
+			k[i] = temp1
 
 	print("CHARACTER SKILLS MERGE WITH BEFORE PROFESSION SKILLS COMPLETE")
 	characterSkills = k
@@ -905,7 +943,7 @@ def initializeGlobals():
 			"pilot":["alertness","craft","first aid","foreign language","navigate","pilot","survival","swim"],
 			"sailor":["alertness","craft","first aid","foreign language","navigate","pilot","survival","swim"],
 			"police officer":["alertness","criminology","drive","firearms","HUMINT","law","melee weapons","unarmed combat"],
-			"science grad student":["bureaucracy","computer science","craft","foreign language","science","science","sciece",["accounting","forensics","law","pharmacy"]],
+			"science grad student":["bureaucracy","computer science","craft","foreign language","science","science","science",["accounting","forensics","law","pharmacy"]],
 			"social worker":["bureaucracy","criminology","forensics","foreign language","HUMINT","law","persuade","search"],
 			"criminal justice degree":["bureaucracy","criminology","forensics","foreign language","HUMINT","law","persuade","search"],
 			"soldier":["alertness","artillery","athletics","drive","firearms","heavy weapons","military science","unarmed combat"],
