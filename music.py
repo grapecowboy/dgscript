@@ -130,8 +130,8 @@ professionAddSkills =	{
 			"anthropologist2":{"anthropology":40,"HUMINT":50,"navigate":50,"ride":50,"search":60,"survival":50},
 			"historian1":{"archeology":40,"HUMINT":50,"navigate":50,"ride":50,"search":60,"survival":50},
 			"historian2":{"anthropology":40,"HUMINT":50,"navigate":50,"ride":50,"search":60,"survival":50},
-			"computer scientist":{"accounting":50,"bureaucracy":50,"craft":[40],"foreign language":[40],"heavy machinery":50,"law":40,"science":40},
-			"engineer":{"accounting":50,"bureaucracy":50,"craft":40,"foreign language":[40],"heavy machinery":50,"law":40,"science":40},
+			"computer scientist":{"accounting":50,"bureaucracy":50,"craft":[40],"foreign language":[40],"heavy machinery":50,"law":40,"science":[40]},
+			"engineer":{"accounting":50,"bureaucracy":50,"craft":[40],"foreign language":[40],"heavy machinery":50,"law":40,"science":[40]},
 			"federal agent":{"accounting":60,"computer science":50,"foreign language":[50],"heavy weapons":50,"pharmacy":50},
 			"physician":{"forensics":50,"psychotherapy":60,"science":50,"surgery":50},
 			"scientist":{"accounting":50,"craft":[40],"foreign language":[40],"law":40,"pharmacy":40 },
@@ -333,6 +333,8 @@ beforeProfession =	{
 			"urban explorer":["alertness","athletics","craft","law","navigate","persuade","search","stealth"]
 			}
 
+beforeProfessionName = list(beforeProfession.keys())
+
 skillsAndBaseRatings =	{
 			"accounting":10,
 			"alertness":20,
@@ -453,7 +455,7 @@ def stepThree():
 	print()
 
 	pprint.pprint( characterProfession )
-	#pprint.pprint( professionSkills )
+	#pprint.pprint( professionSkills )	
 	characterSkills = professionSkills[ characterProfession ]
 
 	if a==12 or a==13 or a==14 or a==15:
@@ -471,6 +473,8 @@ def stepThree():
 
 	print()
 
+	print("CHARACTER ADD SKILLS")
+
 	if a==1 or a==2 or a==3 or a==4:
 		i = random.sample( foreignLanguage, 2 )
 		j = professionSkills[ characterProfession ]["foreign language"]
@@ -484,15 +488,24 @@ def stepThree():
 		i = random.sample( foreignLanguage, 1 )
 		j = professionAddSkills[ characterProfession]["foreign language"]
 		characterAddSkills["foreign language"] = dict( zip(i,j) )
-
-		print("CHARACTER ADD SKILLS")
 		pprint.pprint( characterAddSkills )
+
 		i = random.sample( professionCraft, 1 )
-		j = [characterAddSkills["craft"]]
+		#j = [characterAddSkills["craft"]]
+		j = professionAddSkills[ characterProfession]["craft"]
 		pprint.pprint( i )
 		pprint.pprint( j )
 		k = dict( zip(i,j) )
 		characterAddSkills["craft"] = k
+		pprint.pprint( characterAddSkills )
+
+		temp = professionScience
+		temp.remove("mathematics")
+		i = random.sample( temp, 1 )
+		j = professionAddSkills[ characterProfession]["science"]
+		k = dict( zip(i,j) )
+		characterAddSkills["science"] = k
+		pprint.pprint( characterAddSkills )
 
 		pprint.pprint( characterSkills )
 		print()
@@ -722,8 +735,12 @@ def stepThree():
 		pprint.pprint( characterAddSkills )
 		print()
 
-	
-	characterBeforeProfession = random.choice( list(beforeProfession) )
+
+	if args.b4 == None:
+		characterBeforeProfession = random.choice( list(beforeProfession) )
+	else:
+		characterBeforeProfession = beforeProfessionName[ args.b4 - 1 ]
+
 	print("CHARACTER PREVIOUS PROFESSION ", characterBeforeProfession )
 	print()
 
@@ -745,19 +762,27 @@ def stepThree():
 	elif characterBeforeProfession=="science grad student":
 		w = beforeProfession[ characterBeforeProfession ][7]
 		x = random.sample(w,1)
-		y = beforeProfesion[ characterBeforeProfession][0:7]
+		y = beforeProfession[ characterBeforeProfession][0:7]
 		beforeProfession[ characterBeforeProfession] = y + x
 
 	i = skillsAndBaseRatings
 	# merge primary skills
-	j = {m[0]: m[1] if not(m[0] in characterSkills) else characterSkills[ m[0] ]  for m in i.items()} 
-
+	j = {m[0]: m[1] if not(m[0] in characterSkills) else characterSkills[ m[0] ]  for m in i.items()}
+ 
+	print("MERGING WITH BASE RATINGS")
+	pprint.pprint(j)
+	print()
+	print()
 	# merge add skills if present
 	if characterAddSkills != None:
 		k = {m[0]: m[1] if not(m[0] in characterAddSkills) else characterAddSkills[ m[0] ]  for m in j.items()}
 	else:
 		k = j
 
+	print("MERGE WITH ADDITIONAL SKILLS")
+	pprint.pprint(k)
+	print()
+	print()
 	# merge previous profession skills randomly
 	print("SKILLS BEFORE ADDING PREVIOUS PROFESSION EXPERIENCE ")
 	pprint.pprint( characterSkills )
@@ -794,8 +819,8 @@ def stepThree():
 			i = random.sample( skillsAndBaseRatings.keys(), 1 )[0]
 
 		if not( i in ["art","craft","military science","foreign language","science","pilot"]):
-			print("i is ",i)
-			pprint.pprint(k)
+			#print("i is ",i)
+			#pprint.pprint(k)
 			k[i]+=20
 		elif i=="art" and k[i]==None:
 			k[i] = {random.sample(professionArt,1)[0]:20}
@@ -822,14 +847,15 @@ def stepThree():
 			k[i] = {random.sample(foreignLanguage,1)[0]:20}
 		elif i=="foreign language" and k[i]!=None:
 			temp1 = k[i]
-			print("foreign languages")
-			pprint.pprint( temp1 )
+			#print("foreign languages")
+			#pprint.pprint( temp1 )
 			temp2 = random.sample( k[i].keys(),1)[0]
 			temp1[ temp2 ] += 20
 			k[i] = temp1
 		elif i=="science" and k[i]==None:
 			k[i] = {random.sample(professionScience,1)[0]:20}
 		elif i=="science" and k[i]!=None:
+			pprint.pprint( k[i] )
 			temp1 = k[i]
 			temp2 = random.sample( k[i].keys(),1)[0]
 			temp1[ temp2 ] += 20
@@ -960,10 +986,14 @@ def main():
 	global args
 
 	foo = ["{}. {}".format(i+1,professionName[i]) for i in range(len(professionName)) ]
+
 	bar = "Delta Green Character Generator v1.0\n\n" + '\n'.join(foo)
+	bar += '\n\n' + "Previous Professions\n\n" + '\n'.join( ["{}. {}".format(i+1,beforeProfessionName[i]) for i in range(len(beforeProfessionName)) ])
 
 	parser = argparse.ArgumentParser(add_help=True,formatter_class=argparse.RawTextHelpFormatter,description=bar)
 	parser.add_argument("--prof",type=int,help="Specify profession for generation with an integer",choices=[i+1 for i in range(len(professionName))])
+	parser.add_argument("--b4",type=int,help="Specify previous profession for generation with an integer",choices=[i+1 for i in range(len(beforeProfession))])
+
 	args = parser.parse_args()
 
 	stepOne()
